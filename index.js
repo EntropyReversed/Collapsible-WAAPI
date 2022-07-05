@@ -1,6 +1,12 @@
 // Import stylesheets
 import './style.scss';
 
+const tr_siblings = (el) => {
+  return Array.prototype.filter.call(el.parentNode.children, function (child) {
+    return child !== el;
+  });
+};
+
 class Collapsible {
   constructor(props) {
     this.node = props.node;
@@ -21,6 +27,9 @@ class Collapsible {
       this.node.parentElement.classList.contains('accordion');
     this.accordion = this.isInAccordion ? this.node.parentElement : null;
     this.siblings = [];
+
+    this.toggle = this.toggle.bind(this);
+    this.node.toggleSelf = this.toggle;
 
     this.closeOnOutsideClick = true;
     this.classes = {
@@ -49,13 +58,17 @@ class Collapsible {
     }
   }
 
+  onClick() {
+    this.toggle();
+  }
+
   supportsHover() {
     return window.matchMedia('(hover: none)').matches;
   }
 
   initEvents() {
     if (this.supportsHover() || this.triggerOn === 'click') {
-      this.trigger.addEventListener('click', this.toggle.bind(this));
+      this.trigger.addEventListener('click', this.onClick.bind(this));
       return;
     }
 
@@ -91,6 +104,10 @@ class Collapsible {
         this.onFinish(event, false);
       }
     });
+
+    if (this.isInAccordion) {
+      this.siblings.push(tr_siblings(this.node));
+    }
   }
 }
 
@@ -105,7 +122,7 @@ class Collapsibles {
   initEvents() {
     window.addEventListener('resize', () => {
       this.collapsibles.forEach((col) => {
-        col.anim.effect.setKeyframes(col.setFrames());
+        col.anim.effect.setKeyframes(col.setFrames(col.initiallyOpen));
       });
     });
 
