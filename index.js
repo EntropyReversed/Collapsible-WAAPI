@@ -16,10 +16,11 @@ class Collapsible {
     this.easing = this.node?.dataset?.easing || 'ease-in-out';
     this.duration = +this.node?.dataset?.duration || 1500;
     this.initiallyOpen = this.node.dataset.hasOwnProperty('initiallyOpen');
-    this.anim = this.menu.animate(this.setFrames(this.initiallyOpen), {
+    this.anim = this.menu.animate(this.setFrames(), {
       easing: this.easing,
       duration: this.duration,
       fill: 'both',
+      direction: this.initiallyOpen ? 'reverse' : 'normal',
     });
     this.triggerOn = this.node?.dataset?.triggerOn || 'click';
 
@@ -35,22 +36,34 @@ class Collapsible {
     this.classes = {
       active: 'active',
       transition: 'transition',
+      in: 'transition-in',
+      out: 'transition-out',
     };
     this.init();
   }
 
-  setFrames(reverse = false) {
+  setFrames() {
     const keyframes = [
       { height: '0' },
       { height: `${this.inner.scrollHeight}px` },
     ];
-
-    if (reverse) keyframes.reverse();
     return keyframes;
   }
 
   toggle() {
+    this.node.classList.remove(this.classes.active);
+    this.node.classList.remove(this.classes.in);
+    this.node.classList.remove(this.classes.out);
     this.node.classList.add(this.classes.transition);
+    if (this.anim.playbackRate === 1) {
+      this.node.classList.add(
+        this.initiallyOpen ? this.classes.out : this.classes.in
+      );
+    } else {
+      this.node.classList.add(
+        this.initiallyOpen ? this.classes.in : this.classes.out
+      );
+    }
     this.anim.updatePlaybackRate((this.anim.playbackRate *= -1));
     this.anim.play();
   }
@@ -63,7 +76,14 @@ class Collapsible {
   }
 
   close() {
-    if (this.node.classList.contains(this.classes.active)) {
+    this.node.classList.remove(this.classes.in);
+    if (
+      this.node.classList.contains(this.classes.active) ||
+      this.node.classList.contains(this.classes.out)
+    ) {
+      this.node.classList.remove(this.classes.active);
+      this.node.classList.remove(this.classes.out);
+      this.node.classList.add(this.classes.in);
       this.node.classList.add(this.classes.transition);
       this.anim.playbackRate *= -1;
       this.anim.play();
@@ -106,6 +126,8 @@ class Collapsible {
 
   onFinish(event, reverse = true) {
     this.node.classList.remove(this.classes.transition);
+    this.node.classList.remove(this.classes.in);
+    this.node.classList.remove(this.classes.out);
     let sign = reverse ? 1 : -1;
     if (event.target.playbackRate * sign > 0) {
       this.node.classList['remove'](this.classes.active);
@@ -151,7 +173,7 @@ class Collapsibles {
   initEvents() {
     window.addEventListener('resize', () => {
       this.collapsibles.forEach((col) => {
-        col.anim.effect.setKeyframes(col.setFrames(col.initiallyOpen));
+        col.anim.effect.setKeyframes(col.setFrames());
       });
     });
 
