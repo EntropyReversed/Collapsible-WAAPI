@@ -1,0 +1,10 @@
+{
+  "name": "js",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "https://s3-us-west-2.amazonaws.com/s.cdpn.io/641/web-animations.min.js": "*",
+    "node": "^18.4.0",
+    "sass": "^1.53.0"
+  }
+}
