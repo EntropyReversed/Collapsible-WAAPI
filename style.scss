@@ -7,6 +7,10 @@ body {
   margin-bottom: 40px;
   width: 50%;
 
+  .accordion {
+    width: 100%;
+  }
+
   .collapsible {
     width: 100%;
   }
@@ -38,6 +42,10 @@ body {
     background-color: blue;
     user-select: none;
     cursor: pointer;
+
+    a {
+      color: white;
+    }
   }
 
   &__content {

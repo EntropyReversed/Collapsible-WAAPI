@@ -28,9 +28,13 @@ class Collapsible {
       this.node.parentElement.classList.contains('accordion');
     this.accordion = this.isInAccordion ? this.node.parentElement : null;
     this.siblings = [];
+    this.parentAccordions = [];
 
     this.close = this.close.bind(this);
     this.node.toggleSelf = this.close;
+
+    this.setFrames = this.setFrames.bind(this);
+    this.node.resetFrames = this.setFrames;
 
     this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
       'closeOnOutsideClick'
@@ -42,6 +46,30 @@ class Collapsible {
       out: 'transition-out',
     };
     this.init();
+
+    if (this.isInAccordion) {
+      this.populateParentAccordions();
+    }
+  }
+
+  populateParentAccordions() {
+    if (this.accordion.closest('.collapsible')) {
+      let startingParent = this.accordion.closest('.collapsible');
+      let currentParent = startingParent;
+      this.parentAccordions.push(startingParent);
+
+      let searching = true;
+      while (searching) {
+        currentParent = currentParent.parentElement.closest('.collapsible');
+
+        if (!currentParent) {
+          searching = false;
+          break;
+        }
+
+        this.parentAccordions.push(currentParent);
+      }
+    }
   }
 
   setFrames() {
@@ -53,6 +81,7 @@ class Collapsible {
   }
 
   toggle() {
+
     this.node.classList.remove(this.classes.active);
     this.node.classList.remove(this.classes.in);
     this.node.classList.remove(this.classes.out);
@@ -66,6 +95,8 @@ class Collapsible {
         this.initiallyOpen ? this.classes.in : this.classes.out
       );
     }
+
+    
     this.anim.updatePlaybackRate((this.anim.playbackRate *= -1));
     this.anim.play();
   }
