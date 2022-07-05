@@ -17,9 +17,11 @@ class Collapsible {
     });
     this.triggerOn = this.node?.dataset?.triggerOn || 'click';
 
-    // this.isInAccordion =
-    //   this.node.parentElement.classList.contains('accordion');
-    // this.accordion = this.isInAccordion ? this.node.parentElement : null;
+    this.isInAccordion =
+      this.node.parentElement.classList.contains('accordion');
+    this.accordion = this.isInAccordion ? this.node.parentElement : null;
+    this.siblings = [];
+
     this.closeOnOutsideClick = true;
     this.classes = {
       active: 'active',
