@@ -62,12 +62,13 @@ class Collapsible {
   }
 
   onFinish(event, reverse = true) {
-    if (event.target.playbackRate > 0) {
-      this.node.classList[reverse ? 'remove' : 'add'](this.classes.active);
-      this.node.setAttribute('aria-expanded', reverse ? false : true);
+    let sign = reverse ? 1 : -1;
+    if (event.target.playbackRate * sign > 0) {
+      this.node.classList['remove'](this.classes.active);
+      this.node.setAttribute('aria-expanded', false);
     } else {
-      this.node.classList[reverse ? 'add' : 'remove'](this.classes.active);
-      this.node.setAttribute('aria-expanded', reverse ? true : false);
+      this.node.classList['add'](this.classes.active);
+      this.node.setAttribute('aria-expanded', true);
     }
   }
 
