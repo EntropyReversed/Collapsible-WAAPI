@@ -14,7 +14,7 @@ class Collapsible {
     this.menu = this.node.querySelector('.collapsible__content');
     this.inner = this.node.querySelector('.collapsible__inner');
     this.easing = this.node?.dataset?.easing || 'ease-in-out';
-    this.duration = +this.node?.dataset?.duration || 1500;
+    this.duration = +this.node?.dataset?.duration || 400;
     this.initiallyOpen = this.node.dataset.hasOwnProperty('initiallyOpen');
     this.anim = this.menu.animate(this.setFrames(), {
       easing: this.easing,
@@ -32,7 +32,9 @@ class Collapsible {
     this.close = this.close.bind(this);
     this.node.toggleSelf = this.close;
 
-    this.closeOnOutsideClick = true;
+    this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
+      'closeOnOutsideClick'
+    );
     this.classes = {
       active: 'active',
       transition: 'transition',
@@ -177,18 +179,19 @@ class Collapsibles {
       });
     });
 
-    // document.addEventListener('click', (e) => {
-    //   console.log(e.composedPath());
-    //   this.collapsibles.forEach((col) => {
-    //     if (
-    //       col.closeOnOutsideClick &&
-    //       !e.composedPath().includes(col.node) &&
-    //       col.anim.playbackRate > 0
-    //     ) {
-    //       col.toggle();
-    //     }
-    //   });
-    // });
+    document.addEventListener('click', (e) => {
+      console.log(e.composedPath());
+      this.collapsibles.forEach((col) => {
+        if (
+          !col.isInAccordion &&
+          col.closeOnOutsideClick &&
+          !e.composedPath().includes(col.node) &&
+          col.anim.playbackRate > 0
+        ) {
+          col.toggle();
+        }
+      });
+    });
   }
 
   init() {
