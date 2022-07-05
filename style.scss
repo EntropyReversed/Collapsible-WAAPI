@@ -3,7 +3,17 @@ body {
 }
 
 .accordion {
-  box-shadow: 0 0 0 4px red;
+  box-shadow: 0 0 0 4px white;
+  margin-bottom: 40px;
+  width: 50%;
+
+  .collapsible {
+    width: 100%;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 }
 
 .collapsible {
@@ -40,9 +50,24 @@ body {
     padding: 12px;
   }
 
+  &--absolute {
+    position: relative;
+
+    .collapsible__content {
+      position: absolute;
+      top: 60px;
+    }
+  }
+
   &.active {
     .collapsible__trigger {
       background-color: red;
+    }
+  }
+
+  &.transition {
+    .collapsible__trigger {
+      background-color: green;
     }
   }
 }

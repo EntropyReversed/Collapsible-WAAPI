@@ -14,7 +14,7 @@ class Collapsible {
     this.menu = this.node.querySelector('.collapsible__content');
     this.inner = this.node.querySelector('.collapsible__inner');
     this.easing = this.node?.dataset?.easing || 'ease-in-out';
-    this.duration = +this.node?.dataset?.duration || 400;
+    this.duration = +this.node?.dataset?.duration || 1500;
     this.initiallyOpen = this.node.dataset.hasOwnProperty('initiallyOpen');
     this.anim = this.menu.animate(this.setFrames(this.initiallyOpen), {
       easing: this.easing,
@@ -40,15 +40,18 @@ class Collapsible {
   }
 
   setFrames(reverse = false) {
-    return {
-      height: reverse
-        ? [`${this.inner.scrollHeight}px`, '0']
-        : ['0', `${this.inner.scrollHeight}px`],
-    };
+    const keyframes = [
+      { height: '0' },
+      { height: `${this.inner.scrollHeight}px` },
+    ];
+
+    if (reverse) keyframes.reverse();
+    return keyframes;
   }
 
   toggle() {
-    this.anim.playbackRate *= -1;
+    this.node.classList.add(this.classes.transition);
+    this.anim.updatePlaybackRate((this.anim.playbackRate *= -1));
     this.anim.play();
   }
 
@@ -61,6 +64,7 @@ class Collapsible {
 
   close() {
     if (this.node.classList.contains(this.classes.active)) {
+      this.node.classList.add(this.classes.transition);
       this.anim.playbackRate *= -1;
       this.anim.play();
     }
@@ -72,9 +76,7 @@ class Collapsible {
       this.accordion.dataset.hasOwnProperty('collapseSiblings')
     ) {
       this.siblings.forEach((sibling) => {
-        sibling.forEach((s) => {
-          s.toggleSelf();
-        });
+        sibling.toggleSelf();
       });
     }
   }
@@ -89,18 +91,21 @@ class Collapsible {
   }
 
   initEvents() {
-    if (this.supportsHover() || this.triggerOn === 'click') {
+    if (
+      this.isInAccordion ||
+      this.supportsHover() ||
+      this.triggerOn === 'click'
+    ) {
       this.trigger.addEventListener('click', this.onClick.bind(this));
       return;
     }
 
     this.trigger.addEventListener('mouseenter', this.onMouseEnter.bind(this));
-    if (!this.isInAccordion) {
-      this.node.addEventListener('mouseleave', this.toggle.bind(this));
-    }
+    this.node.addEventListener('mouseleave', this.toggle.bind(this));
   }
 
   onFinish(event, reverse = true) {
+    this.node.classList.remove(this.classes.transition);
     let sign = reverse ? 1 : -1;
     if (event.target.playbackRate * sign > 0) {
       this.node.classList['remove'](this.classes.active);
@@ -112,14 +117,14 @@ class Collapsible {
   }
 
   init() {
+    this.anim.playbackRate *= -1;
+    this.anim.pause();
+    this.initEvents();
+
     if (this.initiallyOpen) {
       this.node.classList.add(this.classes.active);
       this.node.setAttribute('aria-expanded', true);
     }
-
-    this.anim.playbackRate *= -1;
-    this.anim.pause();
-    this.initEvents();
 
     this.anim.addEventListener('finish', (event) => {
       if (this.initiallyOpen) {
@@ -130,7 +135,7 @@ class Collapsible {
     });
 
     if (this.isInAccordion) {
-      this.siblings.push(tr_siblings(this.node));
+      this.siblings.push(...tr_siblings(this.node));
     }
   }
 }
