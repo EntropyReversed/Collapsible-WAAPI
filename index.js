@@ -60,6 +60,14 @@ class Collapsible {
 
   onClick() {
     this.toggle();
+    if (
+      this.isInAccordion &&
+      this.accordion.dataset.hasOwnProperty('collapseSiblings')
+    ) {
+      this.siblings.forEach((sibling) => {
+        sibling.node.toggleSelf();
+      });
+    }
   }
 
   supportsHover() {
