@@ -28,8 +28,8 @@ class Collapsible {
     this.accordion = this.isInAccordion ? this.node.parentElement : null;
     this.siblings = [];
 
-    this.toggle = this.toggle.bind(this);
-    this.node.toggleSelf = this.toggle;
+    this.close = this.close.bind(this);
+    this.node.toggleSelf = this.close;
 
     this.closeOnOutsideClick = true;
     this.classes = {
@@ -55,19 +55,33 @@ class Collapsible {
   onMouseEnter() {
     if (this.anim.playbackRate != 1) {
       this.toggle();
+      this.handleAccordion();
     }
   }
 
-  onClick() {
-    this.toggle();
+  close() {
+    if (this.node.classList.contains(this.classes.active)) {
+      this.anim.playbackRate *= -1;
+      this.anim.play();
+    }
+  }
+
+  handleAccordion() {
     if (
       this.isInAccordion &&
       this.accordion.dataset.hasOwnProperty('collapseSiblings')
     ) {
       this.siblings.forEach((sibling) => {
-        sibling.node.toggleSelf();
+        sibling.forEach((s) => {
+          s.toggleSelf();
+        });
       });
     }
+  }
+
+  onClick() {
+    this.toggle();
+    this.handleAccordion();
   }
 
   supportsHover() {
@@ -81,7 +95,9 @@ class Collapsible {
     }
 
     this.trigger.addEventListener('mouseenter', this.onMouseEnter.bind(this));
-    this.node.addEventListener('mouseleave', this.toggle.bind(this));
+    if (!this.isInAccordion) {
+      this.node.addEventListener('mouseleave', this.toggle.bind(this));
+    }
   }
 
   onFinish(event, reverse = true) {
