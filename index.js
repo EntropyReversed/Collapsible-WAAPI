@@ -1,12 +1,6 @@
 // Import stylesheets
 import './style.scss';
 
-const tr_siblings = (el) => {
-  return Array.prototype.filter.call(el.parentNode.children, function (child) {
-    return child !== el;
-  });
-};
-
 class Collapsible {
   static classes = {
     active: 'active',
@@ -15,6 +9,39 @@ class Collapsible {
     out: 'transition-out',
     optionPicked: 'picked',
   };
+
+  static getSiblings(el) {
+    return Array.prototype.filter.call(
+      el.parentNode.children,
+      function (child) {
+        return child !== el;
+      }
+    );
+  }
+
+  static setStyles(el, styleObj) {
+    Object.entries(styleObj).forEach(([key, value]) => {
+      el.style[key] = value;
+    });
+  }
+
+  static parseFrames(frames) {
+    return JSON.parse(frames).filter((el) => {
+      return el;
+    });
+  }
+
+  static supportsHover() {
+    return window.matchMedia('(hover: none)').matches;
+  }
+
+  static triggerCallback(pointer, condition, fnArr) {
+    if (condition) {
+      fnArr.forEach((fn) => {
+        fn.call(pointer);
+      });
+    }
+  }
 
   constructor(props) {
     this.node = props.node;
@@ -31,31 +58,33 @@ class Collapsible {
       this.accordion?.dataset?.easing ||
       this.node?.dataset?.easing ||
       'ease-in-out';
+
     this.duration =
       +this.accordion?.dataset?.duration ||
       +this.node?.dataset?.duration ||
       300;
+
     this.initiallyOpen = this.node.dataset.hasOwnProperty('initiallyOpen');
     this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
       'closeOnOutsideClick'
     );
     this.isSelect = this.node.dataset.hasOwnProperty('select');
+
     this.anim = this.menu.animate(this.setFrames(), {
       easing: this.easing,
       duration: this.duration,
       fill: 'both',
       direction: this.initiallyOpen ? 'reverse' : 'normal',
     });
+
     this.triggerOn = this.node?.dataset?.triggerOn || 'click';
 
     this.node.closeSelf = this.close.bind(this);
 
     this.hasCustomKeyframes = this.node.dataset.hasOwnProperty('keyframes');
     if (!this.isInAccordion && this.hasCustomKeyframes) {
-      this.passedFrames = JSON.parse(this.node.dataset.keyframes).filter(
-        (el) => {
-          return el;
-        }
+      this.passedFrames = this.constructor.parseFrames(
+        this.node.dataset.keyframes
       );
     }
     this.init();
@@ -94,10 +123,17 @@ class Collapsible {
   }
 
   onMouseEnter() {
-    if (this.anim.playbackRate != 1) {
-      this.toggle();
-      this.handleAccordion();
-    }
+    this.constructor.triggerCallback(this, this.anim.playbackRate != 1, [
+      this.toggle,
+      this.handleAccordion,
+    ]);
+  }
+
+  onClick() {
+    this.constructor.triggerCallback(this, true, [
+      this.toggle,
+      this.handleAccordion,
+    ]);
   }
 
   close() {
@@ -131,15 +167,6 @@ class Collapsible {
     }
   }
 
-  onClick() {
-    this.toggle();
-    this.handleAccordion();
-  }
-
-  supportsHover() {
-    return window.matchMedia('(hover: none)').matches;
-  }
-
   initEvents() {
     this.anim.addEventListener('finish', (event) => {
       if (this.initiallyOpen) {
@@ -151,7 +178,7 @@ class Collapsible {
 
     if (
       this.isInAccordion ||
-      this.supportsHover() ||
+      this.constructor.supportsHover() ||
       this.triggerOn === 'click'
     ) {
       this.trigger.addEventListener('click', this.onClick.bind(this));
@@ -171,45 +198,47 @@ class Collapsible {
       '.collapsible__select-current'
     );
     options.forEach((option) => {
+      const optionHasDataVal = option.dataset.hasOwnProperty('value');
       if (option.classList.contains(this.constructor.classes.optionPicked)) {
         triggerSpan.innerText = option.innerText;
+        if (optionHasDataVal) {
+          this.node.setAttribute('data-value', option.dataset.value);
+        }
       }
 
       option.addEventListener('click', (e) => {
-        triggerSpan.innerText = option.innerText;
-        options.forEach((otherOption) => {
-          otherOption.classList.remove(this.constructor.classes.optionPicked);
+        this.constructor.getSiblings(option).forEach((sibling) => {
+          sibling.classList.remove(this.constructor.classes.optionPicked);
         });
         option.classList.add(this.constructor.classes.optionPicked);
+        if (optionHasDataVal) {
+          this.node.setAttribute('data-value', option.dataset.value);
+        }
         this.close();
       });
     });
   }
 
-  setStyles(styleObj) {
-    Object.entries(styleObj).forEach(([key, value]) => {
-      this.menu.style[key] = value;
-    });
-  }
-
   setStartState() {
     if (!this.hasCustomKeyframes) {
-      this.setStyles({ height: '0px' });
+      this.constructor.setStyles(this.menu, { height: '0px' });
     } else {
-      this.setStyles(this.passedFrames[0]);
+      this.constructor.setStyles(this.menu, this.passedFrames[0]);
     }
   }
 
   setEndState() {
     if (!this.hasCustomKeyframes) {
-      this.setStyles({ height: 'auto' });
+      this.constructor.setStyles(this.menu, { height: 'auto' });
     } else {
-      this.setStyles(this.passedFrames[this.passedFrames.length - 1]);
+      this.constructor.setStyles(
+        this.menu,
+        this.passedFrames[this.passedFrames.length - 1]
+      );
     }
   }
 
   onFinish(event, reverse = true) {
-    this.anim.effect.setKeyframes(this.setFrames());
     this.node.classList.remove(
       this.constructor.classes.transition,
       this.constructor.classes.in,
@@ -243,7 +272,7 @@ class Collapsible {
     }
 
     if (this.isInAccordion) {
-      this.siblings.push(...tr_siblings(this.node));
+      this.siblings.push(...this.constructor.getSiblings(this.node));
     }
 
     if (this.isSelect) {
