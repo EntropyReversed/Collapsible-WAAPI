@@ -30,7 +30,7 @@ body {
 }
 
 .collapsible {
-  --transition: all var(--duration) ease-in-out;
+  --transition: all var(--collapsible-duration) ease-in-out;
   --chevronC: #222;
   --chevronW: 9px;
   --chevronH: 2px;

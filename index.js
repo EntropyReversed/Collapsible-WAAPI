@@ -7,7 +7,12 @@ class Collapsible {
     transition: 'transition',
     in: 'transition-in',
     out: 'transition-out',
-    optionPicked: 'picked',
+    selectPicked: 'picked',
+    selectOption: '.collapsible__option',
+    selectCurrent: '.collapsible__select-current',
+    trigger: '.collapsible__trigger',
+    menu: '.collapsible__content',
+    inner: '.collapsible__inner',
   };
 
   static getSiblings(el) {
@@ -45,9 +50,9 @@ class Collapsible {
 
   constructor(props) {
     this.node = props.node;
-    this.trigger = this.node.querySelector('.collapsible__trigger');
-    this.menu = this.node.querySelector('.collapsible__content');
-    this.inner = this.node.querySelector('.collapsible__inner');
+    this.trigger = this.node.querySelector(this.constructor.classes.trigger);
+    this.menu = this.node.querySelector(this.constructor.classes.menu);
+    this.inner = this.node.querySelector(this.constructor.classes.inner);
 
     this.isInAccordion =
       this.node.parentElement.classList.contains('accordion');
@@ -171,9 +176,9 @@ class Collapsible {
     this.anim.addEventListener('finish', (event) => {
       if (this.initiallyOpen) {
         this.onFinish(event);
-      } else {
-        this.onFinish(event, false);
+        return;
       }
+      this.onFinish(event, false);
     });
 
     if (
@@ -193,13 +198,15 @@ class Collapsible {
   }
 
   selectCollapsible() {
-    const options = this.node.querySelectorAll('.collapsible__option');
+    const options = this.node.querySelectorAll(
+      this.constructor.classes.selectOption
+    );
     const triggerSpan = this.trigger.querySelector(
-      '.collapsible__select-current'
+      this.constructor.classes.selectCurrent
     );
     options.forEach((option) => {
       const optionHasDataVal = option.dataset.hasOwnProperty('value');
-      if (option.classList.contains(this.constructor.classes.optionPicked)) {
+      if (option.classList.contains(this.constructor.classes.selectPicked)) {
         triggerSpan.innerText = option.innerText;
         if (optionHasDataVal) {
           this.node.setAttribute('data-value', option.dataset.value);
@@ -208,9 +215,10 @@ class Collapsible {
 
       option.addEventListener('click', (e) => {
         this.constructor.getSiblings(option).forEach((sibling) => {
-          sibling.classList.remove(this.constructor.classes.optionPicked);
+          sibling.classList.remove(this.constructor.classes.selectPicked);
         });
-        option.classList.add(this.constructor.classes.optionPicked);
+        option.classList.add(this.constructor.classes.selectPicked);
+        triggerSpan.innerText = option.innerText;
         if (optionHasDataVal) {
           this.node.setAttribute('data-value', option.dataset.value);
         }
@@ -279,7 +287,10 @@ class Collapsible {
       this.selectCollapsible();
     }
 
-    this.node.style.setProperty('--duration', `${this.duration / 1000}s`);
+    this.node.style.setProperty(
+      '--collapsible-duration',
+      `${this.duration / 1000}s`
+    );
   }
 }
 
