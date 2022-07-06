@@ -76,6 +76,7 @@ body {
     transition: var(--transition);
     outline: none !important;
     user-select: none;
+    z-index: 1;
     cursor: pointer;
 
     a {

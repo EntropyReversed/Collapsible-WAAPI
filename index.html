@@ -315,8 +315,16 @@
   data-trigger-on="hover"
   data-easing="linear"
   data-keyframes='[
-    {"opacity": "0", "transform": "translateY(-10px)"}, 
-    {"opacity": "1", "transform": "translateY(0)"}
+    {
+      "opacity": 0, 
+      "transform": "translateY(-10px)", 
+      "pointer-events": "none"
+    }, 
+    {
+      "opacity": "1", 
+      "transform": "translateY(0)", 
+      "pointer-events": "all"
+    }
   ]'
 >
   <div class="collapsible__trigger">
