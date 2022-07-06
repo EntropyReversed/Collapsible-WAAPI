@@ -68,6 +68,23 @@ body {
     }
   }
 
+  &[data-select] {
+    .collapsible__inner {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .collapsible__option {
+      height: 60px;
+      cursor: pointer;
+
+      &.picked {
+        background-color: rgba(255, 0, 0, 0.4);
+      }
+    }
+  }
+
   &.active {
     > .collapsible__trigger {
       background-color: red;

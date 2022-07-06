@@ -16,6 +16,10 @@ class Collapsible {
     this.easing = this.node?.dataset?.easing || 'ease-in-out';
     this.duration = +this.node?.dataset?.duration || 400;
     this.initiallyOpen = this.node.dataset.hasOwnProperty('initiallyOpen');
+    this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
+      'closeOnOutsideClick'
+    );
+    this.isSelect = this.node.dataset.hasOwnProperty('select');
     this.anim = this.menu.animate(this.setFrames(), {
       easing: this.easing,
       duration: this.duration,
@@ -29,17 +33,14 @@ class Collapsible {
     this.accordion = this.isInAccordion ? this.node.parentElement : null;
     this.siblings = [];
 
-    this.close = this.close.bind(this);
-    this.node.toggleSelf = this.close;
+    this.node.closeSelf = this.close.bind(this);
 
-    this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
-      'closeOnOutsideClick'
-    );
     this.classes = {
       active: 'active',
       transition: 'transition',
       in: 'transition-in',
       out: 'transition-out',
+      optionPicked: 'picked',
     };
     this.init();
   }
@@ -100,7 +101,7 @@ class Collapsible {
       this.accordion.dataset.hasOwnProperty('collapseSiblings')
     ) {
       this.siblings.forEach((sibling) => {
-        sibling.toggleSelf();
+        sibling.closeSelf();
       });
     }
   }
@@ -115,6 +116,32 @@ class Collapsible {
   }
 
   initEvents() {
+    this.anim.addEventListener('finish', (event) => {
+      if (this.initiallyOpen) {
+        this.onFinish(event);
+      } else {
+        this.onFinish(event, false);
+      }
+    });
+
+    if (this.isSelect) {
+      const options = this.node.querySelectorAll('.collapsible__option');
+      options.forEach((option) => {
+        if (option.classList.contains(this.classes.optionPicked)) {
+          this.trigger.innerText = option.innerText;
+        }
+
+        option.addEventListener('click', (e) => {
+          this.trigger.innerText = option.innerText;
+          options.forEach((otherOption) => {
+            otherOption.classList.remove(this.classes.optionPicked);
+          });
+          option.classList.add(this.classes.optionPicked);
+          this.close();
+        });
+      });
+    }
+
     if (
       this.isInAccordion ||
       this.supportsHover() ||
@@ -134,48 +161,36 @@ class Collapsible {
       this.classes.in,
       this.classes.out
     );
-    let sign = reverse ? 1 : -1;
-    if (event.target.playbackRate * sign > 0) {
-      this.node.classList['remove'](this.classes.active);
+
+    if (event.target.playbackRate * (reverse ? 1 : -1) > 0) {
+      this.node.classList.remove(this.classes.active);
       this.node.setAttribute('aria-expanded', false);
-      this.anim.cancel();
       this.menu.style.height = '0px';
     } else {
-      this.node.classList['add'](this.classes.active);
+      this.node.classList.add(this.classes.active);
       this.node.setAttribute('aria-expanded', true);
-      this.anim.cancel();
       this.menu.style.height = 'auto';
     }
+    this.anim.cancel();
   }
 
   init() {
     this.anim.playbackRate *= -1;
-    this.anim.pause();
+    this.anim.cancel();
+
     this.initEvents();
 
     if (this.initiallyOpen) {
       this.node.classList.add(this.classes.active);
       this.node.setAttribute('aria-expanded', true);
-    }
-
-    this.anim.addEventListener('finish', (event) => {
-      if (this.initiallyOpen) {
-        this.onFinish(event);
-      } else {
-        this.onFinish(event, false);
-      }
-    });
-
-    if (this.isInAccordion) {
-      this.siblings.push(...tr_siblings(this.node));
-    }
-
-    if (this.initiallyOpen) {
       this.menu.style.height = 'auto';
     } else {
       this.menu.style.height = '0px';
     }
-    this.anim.cancel();
+
+    if (this.isInAccordion) {
+      this.siblings.push(...tr_siblings(this.node));
+    }
   }
 }
 
@@ -188,12 +203,6 @@ class Collapsibles {
   }
 
   initEvents() {
-    // window.addEventListener('resize', () => {
-    //   this.collapsibles.forEach((col) => {
-    //     col.anim.effect.setKeyframes(col.setFrames());
-    //   });
-    // });
-
     document.addEventListener('click', (e) => {
       this.collapsibles.forEach((col) => {
         if (
