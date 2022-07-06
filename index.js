@@ -126,13 +126,14 @@ class Collapsible {
 
     if (this.isSelect) {
       const options = this.node.querySelectorAll('.collapsible__option');
+      const triggerSpan = this.trigger.querySelector('span');
       options.forEach((option) => {
         if (option.classList.contains(this.classes.optionPicked)) {
-          this.trigger.innerText = option.innerText;
+          triggerSpan.innerText = option.innerText;
         }
 
         option.addEventListener('click', (e) => {
-          this.trigger.innerText = option.innerText;
+          triggerSpan.innerText = option.innerText;
           options.forEach((otherOption) => {
             otherOption.classList.remove(this.classes.optionPicked);
           });
@@ -151,8 +152,11 @@ class Collapsible {
       return;
     }
 
-    this.trigger.addEventListener('mouseenter', this.onMouseEnter.bind(this));
-    this.node.addEventListener('mouseleave', this.toggle.bind(this));
+    this.trigger.addEventListener('mouseover', this.onMouseEnter.bind(this));
+    this.node.addEventListener('mouseleave', (e) => {
+      // TODO: find a way to always detect mouseleave;
+      this.toggle();
+    });
   }
 
   onFinish(event, reverse = true) {
