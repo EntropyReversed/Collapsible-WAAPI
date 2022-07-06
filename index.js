@@ -60,7 +60,11 @@ class Collapsible {
 
       let searching = true;
       while (searching) {
-        currentParent = currentParent.parentElement.closest('.collapsible');
+        if (!currentParent.classList.contains('collapsible')) {
+          currentParent = currentParent.closest('.collapsible');
+        } else {
+          currentParent = currentParent.parentElement.closest('.collapsible');
+        }
 
         if (!currentParent) {
           searching = false;
@@ -81,7 +85,6 @@ class Collapsible {
   }
 
   toggle() {
-
     this.node.classList.remove(this.classes.active);
     this.node.classList.remove(this.classes.in);
     this.node.classList.remove(this.classes.out);
@@ -96,7 +99,11 @@ class Collapsible {
       );
     }
 
-    
+    if (this.isInAccordion && this.parentAccordions.length) {
+      this.parentAccordions.forEach((parent) => {
+        parent.resetFrames();
+      });
+    }
     this.anim.updatePlaybackRate((this.anim.playbackRate *= -1));
     this.anim.play();
   }
@@ -192,6 +199,11 @@ class Collapsible {
     if (this.isInAccordion) {
       this.siblings.push(...tr_siblings(this.node));
     }
+
+    this.parentAccordions.forEach((parent) => {
+      console.log(parent);
+      parent.resetFrames();
+    });
   }
 }
 
@@ -211,7 +223,6 @@ class Collapsibles {
     });
 
     document.addEventListener('click', (e) => {
-      console.log(e.composedPath());
       this.collapsibles.forEach((col) => {
         if (
           !col.isInAccordion &&
