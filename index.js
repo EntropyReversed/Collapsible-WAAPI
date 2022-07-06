@@ -13,8 +13,20 @@ class Collapsible {
     this.trigger = this.node.querySelector('.collapsible__trigger');
     this.menu = this.node.querySelector('.collapsible__content');
     this.inner = this.node.querySelector('.collapsible__inner');
-    this.easing = this.node?.dataset?.easing || 'ease-in-out';
-    this.duration = +this.node?.dataset?.duration || 300;
+
+    this.isInAccordion =
+      this.node.parentElement.classList.contains('accordion');
+    this.accordion = this.isInAccordion ? this.node.parentElement : null;
+    this.siblings = [];
+
+    this.easing =
+      this.accordion?.dataset?.easing ||
+      this.node?.dataset?.easing ||
+      'ease-in-out';
+    this.duration =
+      +this.accordion?.dataset?.duration ||
+      +this.node?.dataset?.duration ||
+      300;
     this.initiallyOpen = this.node.dataset.hasOwnProperty('initiallyOpen');
     this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
       'closeOnOutsideClick'
@@ -27,11 +39,6 @@ class Collapsible {
       direction: this.initiallyOpen ? 'reverse' : 'normal',
     });
     this.triggerOn = this.node?.dataset?.triggerOn || 'click';
-
-    this.isInAccordion =
-      this.node.parentElement.classList.contains('accordion');
-    this.accordion = this.isInAccordion ? this.node.parentElement : null;
-    this.siblings = [];
 
     this.node.closeSelf = this.close.bind(this);
 
