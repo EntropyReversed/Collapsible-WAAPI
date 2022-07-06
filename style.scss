@@ -22,6 +22,11 @@ body {
 
   .accordion {
     box-shadow: 0 0 0 1px red;
+    margin-bottom: 0;
+
+    .collapsible__inner {
+      padding-bottom: 10px;
+    }
   }
 }
 
@@ -144,7 +149,7 @@ body {
 
     .collapsible__content {
       position: absolute;
-      top: 60px;
+      top: 40px;
     }
   }
 
