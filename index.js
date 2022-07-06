@@ -43,7 +43,7 @@ class Collapsible {
     this.node.closeSelf = this.close.bind(this);
 
     this.hasCustomKeyframes = this.node.dataset.hasOwnProperty('keyframes');
-    if (this.hasCustomKeyframes) {
+    if (!this.isInAccordion && this.hasCustomKeyframes) {
       this.passedFrames = JSON.parse(this.node.dataset.keyframes).filter(
         (el) => {
           return el;

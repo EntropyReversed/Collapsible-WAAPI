@@ -55,7 +55,7 @@
 </div>
 
 <div class="accordion">
-  <div class="collapsible" data-initially-open>
+  <div class="collapsible">
     <div class="collapsible__trigger">
       <a href="https://google.com" target="_blank"> Trigger lvl1 </a>
       <span class="chevron"></span>
@@ -313,13 +313,17 @@
 <div
   class="collapsible collapsible--absolute"
   data-trigger-on="hover"
-  data-easing="linear"
+  data-duration="600"
   data-keyframes='[
     {
       "opacity": 0, 
       "transform": "translateY(-10px)", 
       "pointer-events": "none"
     }, 
+    { 
+      "transform": "translateY(10px)",
+      "offset": 0.9
+    },
     {
       "opacity": "1", 
       "transform": "translateY(0)", 
