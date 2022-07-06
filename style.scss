@@ -9,6 +9,7 @@ body {
 
   .accordion {
     width: 100%;
+    margin-bottom: 10px;
   }
 
   .collapsible {
@@ -68,13 +69,13 @@ body {
   }
 
   &.active {
-    .collapsible__trigger {
+    > .collapsible__trigger {
       background-color: red;
     }
   }
 
   &.transition {
-    .collapsible__trigger {
+    > .collapsible__trigger {
       background-color: green;
     }
   }

@@ -28,13 +28,9 @@ class Collapsible {
       this.node.parentElement.classList.contains('accordion');
     this.accordion = this.isInAccordion ? this.node.parentElement : null;
     this.siblings = [];
-    this.parentAccordions = [];
 
     this.close = this.close.bind(this);
     this.node.toggleSelf = this.close;
-
-    this.setFrames = this.setFrames.bind(this);
-    this.node.resetFrames = this.setFrames;
 
     this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
       'closeOnOutsideClick'
@@ -46,34 +42,6 @@ class Collapsible {
       out: 'transition-out',
     };
     this.init();
-
-    if (this.isInAccordion) {
-      this.populateParentAccordions();
-    }
-  }
-
-  populateParentAccordions() {
-    if (this.accordion.closest('.collapsible')) {
-      let startingParent = this.accordion.closest('.collapsible');
-      let currentParent = startingParent;
-      this.parentAccordions.push(startingParent);
-
-      let searching = true;
-      while (searching) {
-        if (!currentParent.classList.contains('collapsible')) {
-          currentParent = currentParent.closest('.collapsible');
-        } else {
-          currentParent = currentParent.parentElement.closest('.collapsible');
-        }
-
-        if (!currentParent) {
-          searching = false;
-          break;
-        }
-
-        this.parentAccordions.push(currentParent);
-      }
-    }
   }
 
   setFrames() {
@@ -85,9 +53,12 @@ class Collapsible {
   }
 
   toggle() {
-    this.node.classList.remove(this.classes.active);
-    this.node.classList.remove(this.classes.in);
-    this.node.classList.remove(this.classes.out);
+    this.anim.effect.setKeyframes(this.setFrames());
+    this.node.classList.remove(
+      this.classes.active,
+      this.classes.in,
+      this.classes.out
+    );
     this.node.classList.add(this.classes.transition);
     if (this.anim.playbackRate === 1) {
       this.node.classList.add(
@@ -99,11 +70,6 @@ class Collapsible {
       );
     }
 
-    if (this.isInAccordion && this.parentAccordions.length) {
-      this.parentAccordions.forEach((parent) => {
-        parent.resetFrames();
-      });
-    }
     this.anim.updatePlaybackRate((this.anim.playbackRate *= -1));
     this.anim.play();
   }
@@ -121,10 +87,8 @@ class Collapsible {
       this.node.classList.contains(this.classes.active) ||
       this.node.classList.contains(this.classes.out)
     ) {
-      this.node.classList.remove(this.classes.active);
-      this.node.classList.remove(this.classes.out);
-      this.node.classList.add(this.classes.in);
-      this.node.classList.add(this.classes.transition);
+      this.node.classList.remove(this.classes.active, this.classes.out);
+      this.node.classList.add(this.classes.transition, this.classes.in);
       this.anim.playbackRate *= -1;
       this.anim.play();
     }
@@ -165,16 +129,22 @@ class Collapsible {
   }
 
   onFinish(event, reverse = true) {
-    this.node.classList.remove(this.classes.transition);
-    this.node.classList.remove(this.classes.in);
-    this.node.classList.remove(this.classes.out);
+    this.node.classList.remove(
+      this.classes.transition,
+      this.classes.in,
+      this.classes.out
+    );
     let sign = reverse ? 1 : -1;
     if (event.target.playbackRate * sign > 0) {
       this.node.classList['remove'](this.classes.active);
       this.node.setAttribute('aria-expanded', false);
+      this.anim.cancel();
+      this.menu.style.height = '0px';
     } else {
       this.node.classList['add'](this.classes.active);
       this.node.setAttribute('aria-expanded', true);
+      this.anim.cancel();
+      this.menu.style.height = 'auto';
     }
   }
 
@@ -200,10 +170,12 @@ class Collapsible {
       this.siblings.push(...tr_siblings(this.node));
     }
 
-    this.parentAccordions.forEach((parent) => {
-      console.log(parent);
-      parent.resetFrames();
-    });
+    if (this.initiallyOpen) {
+      this.menu.style.height = 'auto';
+    } else {
+      this.menu.style.height = '0px';
+    }
+    this.anim.cancel();
   }
 }
 
@@ -216,11 +188,11 @@ class Collapsibles {
   }
 
   initEvents() {
-    window.addEventListener('resize', () => {
-      this.collapsibles.forEach((col) => {
-        col.anim.effect.setKeyframes(col.setFrames());
-      });
-    });
+    // window.addEventListener('resize', () => {
+    //   this.collapsibles.forEach((col) => {
+    //     col.anim.effect.setKeyframes(col.setFrames());
+    //   });
+    // });
 
     document.addEventListener('click', (e) => {
       this.collapsibles.forEach((col) => {
