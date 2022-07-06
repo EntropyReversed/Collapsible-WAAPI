@@ -8,6 +8,14 @@ const tr_siblings = (el) => {
 };
 
 class Collapsible {
+  static classes = {
+    active: 'active',
+    transition: 'transition',
+    in: 'transition-in',
+    out: 'transition-out',
+    optionPicked: 'picked',
+  };
+
   constructor(props) {
     this.node = props.node;
     this.trigger = this.node.querySelector('.collapsible__trigger');
@@ -50,14 +58,6 @@ class Collapsible {
         }
       );
     }
-
-    this.classes = {
-      active: 'active',
-      transition: 'transition',
-      in: 'transition-in',
-      out: 'transition-out',
-      optionPicked: 'picked',
-    };
     this.init();
   }
 
@@ -70,18 +70,22 @@ class Collapsible {
   toggle() {
     this.anim.effect.setKeyframes(this.setFrames());
     this.node.classList.remove(
-      this.classes.active,
-      this.classes.in,
-      this.classes.out
+      this.constructor.classes.active,
+      this.constructor.classes.in,
+      this.constructor.classes.out
     );
-    this.node.classList.add(this.classes.transition);
+    this.node.classList.add(this.constructor.classes.transition);
     if (this.anim.playbackRate === 1) {
       this.node.classList.add(
-        this.initiallyOpen ? this.classes.out : this.classes.in
+        this.initiallyOpen
+          ? this.constructor.classes.out
+          : this.constructor.classes.in
       );
     } else {
       this.node.classList.add(
-        this.initiallyOpen ? this.classes.in : this.classes.out
+        this.initiallyOpen
+          ? this.constructor.classes.in
+          : this.constructor.classes.out
       );
     }
 
@@ -97,13 +101,20 @@ class Collapsible {
   }
 
   close() {
-    this.node.classList.remove(this.classes.in);
+    this.anim.effect.setKeyframes(this.setFrames());
+    this.node.classList.remove(this.constructor.classes.in);
     if (
-      this.node.classList.contains(this.classes.active) ||
-      this.node.classList.contains(this.classes.out)
+      this.node.classList.contains(this.constructor.classes.active) ||
+      this.node.classList.contains(this.constructor.classes.out)
     ) {
-      this.node.classList.remove(this.classes.active, this.classes.out);
-      this.node.classList.add(this.classes.transition, this.classes.in);
+      this.node.classList.remove(
+        this.constructor.classes.active,
+        this.constructor.classes.out
+      );
+      this.node.classList.add(
+        this.constructor.classes.transition,
+        this.constructor.classes.in
+      );
       this.anim.playbackRate *= -1;
       this.anim.play();
     }
@@ -160,24 +171,24 @@ class Collapsible {
       '.collapsible__select-current'
     );
     options.forEach((option) => {
-      if (option.classList.contains(this.classes.optionPicked)) {
+      if (option.classList.contains(this.constructor.classes.optionPicked)) {
         triggerSpan.innerText = option.innerText;
       }
 
       option.addEventListener('click', (e) => {
         triggerSpan.innerText = option.innerText;
         options.forEach((otherOption) => {
-          otherOption.classList.remove(this.classes.optionPicked);
+          otherOption.classList.remove(this.constructor.classes.optionPicked);
         });
-        option.classList.add(this.classes.optionPicked);
+        option.classList.add(this.constructor.classes.optionPicked);
         this.close();
       });
     });
   }
 
   setStyles(styleObj) {
-    Object.entries(styleObj).forEach((obj) => {
-      this.menu.style[obj[0]] = obj[1];
+    Object.entries(styleObj).forEach(([key, value]) => {
+      this.menu.style[key] = value;
     });
   }
 
@@ -198,18 +209,19 @@ class Collapsible {
   }
 
   onFinish(event, reverse = true) {
+    this.anim.effect.setKeyframes(this.setFrames());
     this.node.classList.remove(
-      this.classes.transition,
-      this.classes.in,
-      this.classes.out
+      this.constructor.classes.transition,
+      this.constructor.classes.in,
+      this.constructor.classes.out
     );
 
     if (event.target.playbackRate * (reverse ? 1 : -1) > 0) {
-      this.node.classList.remove(this.classes.active);
+      this.node.classList.remove(this.constructor.classes.active);
       this.node.setAttribute('aria-expanded', false);
       this.setStartState();
     } else {
-      this.node.classList.add(this.classes.active);
+      this.node.classList.add(this.constructor.classes.active);
       this.node.setAttribute('aria-expanded', true);
       this.setEndState();
     }
@@ -223,7 +235,7 @@ class Collapsible {
     this.initEvents();
 
     if (this.initiallyOpen) {
-      this.node.classList.add(this.classes.active);
+      this.node.classList.add(this.constructor.classes.active);
       this.node.setAttribute('aria-expanded', true);
       this.setEndState();
     } else {
