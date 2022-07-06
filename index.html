@@ -275,7 +275,7 @@
 
 <div class="collapsible" data-select>
   <div class="collapsible__trigger">
-    <span>Trigger</span>
+    <span class="collapsible__select-current">Trigger</span>
     <span class="chevron"></span>
   </div>
   <div class="collapsible__content">
@@ -314,6 +314,10 @@
   class="collapsible collapsible--absolute"
   data-trigger-on="hover"
   data-easing="linear"
+  data-keyframes='[
+    {"opacity": "0", "transform": "translateY(-10px)"}, 
+    {"opacity": "1", "transform": "translateY(0)"}
+  ]'
 >
   <div class="collapsible__trigger">
     Trigger On Hover

@@ -42,6 +42,10 @@ class Collapsible {
 
     this.node.closeSelf = this.close.bind(this);
 
+    this.hasCustomKeyframes = this.node.dataset.hasOwnProperty('keyframes');
+    this.passedFrames =
+      this.hasCustomKeyframes && this.node?.dataset?.keyframes;
+
     this.classes = {
       active: 'active',
       transition: 'transition',
@@ -53,11 +57,15 @@ class Collapsible {
   }
 
   setFrames() {
-    const keyframes = [
-      { height: '0' },
-      { height: `${this.inner.scrollHeight}px` },
-    ];
-    return keyframes;
+    return this.hasCustomKeyframes
+      ? this.getCustomFrames()
+      : [{ height: '0' }, { height: `${this.inner.scrollHeight}px` }];
+  }
+
+  getCustomFrames() {
+    return JSON.parse(this.passedFrames).filter((el) => {
+      return el;
+    });
   }
 
   toggle() {
@@ -131,25 +139,6 @@ class Collapsible {
       }
     });
 
-    if (this.isSelect) {
-      const options = this.node.querySelectorAll('.collapsible__option');
-      const triggerSpan = this.trigger.querySelector('span');
-      options.forEach((option) => {
-        if (option.classList.contains(this.classes.optionPicked)) {
-          triggerSpan.innerText = option.innerText;
-        }
-
-        option.addEventListener('click', (e) => {
-          triggerSpan.innerText = option.innerText;
-          options.forEach((otherOption) => {
-            otherOption.classList.remove(this.classes.optionPicked);
-          });
-          option.classList.add(this.classes.optionPicked);
-          this.close();
-        });
-      });
-    }
-
     if (
       this.isInAccordion ||
       this.supportsHover() ||
@@ -166,6 +155,49 @@ class Collapsible {
     });
   }
 
+  selectCollapsible() {
+    const options = this.node.querySelectorAll('.collapsible__option');
+    const triggerSpan = this.trigger.querySelector(
+      '.collapsible__select-current'
+    );
+    options.forEach((option) => {
+      if (option.classList.contains(this.classes.optionPicked)) {
+        triggerSpan.innerText = option.innerText;
+      }
+
+      option.addEventListener('click', (e) => {
+        triggerSpan.innerText = option.innerText;
+        options.forEach((otherOption) => {
+          otherOption.classList.remove(this.classes.optionPicked);
+        });
+        option.classList.add(this.classes.optionPicked);
+        this.close();
+      });
+    });
+  }
+
+  setStyles(styleObj) {
+    Object.entries(styleObj).forEach((obj) => {
+      this.menu.style[obj[0]] = obj[1];
+    });
+  }
+
+  setStartState() {
+    if (!this.hasCustomKeyframes) {
+      this.setStyles({ height: '0px' });
+    } else {
+      this.setStyles(this.getCustomFrames()[0]);
+    }
+  }
+
+  setEndState() {
+    if (!this.hasCustomKeyframes) {
+      this.setStyles({ height: 'auto' });
+    } else {
+      this.setStyles(this.getCustomFrames()[this.getCustomFrames().length - 1]);
+    }
+  }
+
   onFinish(event, reverse = true) {
     this.node.classList.remove(
       this.classes.transition,
@@ -176,11 +208,11 @@ class Collapsible {
     if (event.target.playbackRate * (reverse ? 1 : -1) > 0) {
       this.node.classList.remove(this.classes.active);
       this.node.setAttribute('aria-expanded', false);
-      this.menu.style.height = '0px';
+      this.setStartState();
     } else {
       this.node.classList.add(this.classes.active);
       this.node.setAttribute('aria-expanded', true);
-      this.menu.style.height = 'auto';
+      this.setEndState();
     }
     this.anim.cancel();
   }
@@ -194,13 +226,17 @@ class Collapsible {
     if (this.initiallyOpen) {
       this.node.classList.add(this.classes.active);
       this.node.setAttribute('aria-expanded', true);
-      this.menu.style.height = 'auto';
+      this.setEndState();
     } else {
-      this.menu.style.height = '0px';
+      this.setStartState();
     }
 
     if (this.isInAccordion) {
       this.siblings.push(...tr_siblings(this.node));
+    }
+
+    if (this.isSelect) {
+      this.selectCollapsible();
     }
 
     this.node.style.setProperty('--duration', `${this.duration / 1000}s`);
