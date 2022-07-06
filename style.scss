@@ -10,7 +10,6 @@ body {
 }
 
 .accordion .collapsible {
-  --transition: all 0.35s ease-in-out;
   --highlight-color: var(--c-brand);
 
   .collapsible__inner {
@@ -31,7 +30,7 @@ body {
 }
 
 .collapsible {
-  --transition: all 0.2s ease-in-out;
+  --transition: all var(--duration) ease-in-out;
   --chevronC: #222;
   --chevronW: 9px;
   --chevronH: 2px;

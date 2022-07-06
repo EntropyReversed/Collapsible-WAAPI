@@ -14,7 +14,7 @@ class Collapsible {
     this.menu = this.node.querySelector('.collapsible__content');
     this.inner = this.node.querySelector('.collapsible__inner');
     this.easing = this.node?.dataset?.easing || 'ease-in-out';
-    this.duration = +this.node?.dataset?.duration || 4000;
+    this.duration = +this.node?.dataset?.duration || 300;
     this.initiallyOpen = this.node.dataset.hasOwnProperty('initiallyOpen');
     this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
       'closeOnOutsideClick'
@@ -195,6 +195,8 @@ class Collapsible {
     if (this.isInAccordion) {
       this.siblings.push(...tr_siblings(this.node));
     }
+
+    this.node.style.setProperty('--duration', `${this.duration / 1000}s`);
   }
 }
 
