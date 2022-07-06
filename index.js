@@ -43,8 +43,11 @@ class Collapsible {
     this.node.closeSelf = this.close.bind(this);
 
     this.hasCustomKeyframes = this.node.dataset.hasOwnProperty('keyframes');
-    this.passedFrames =
-      this.hasCustomKeyframes && this.node?.dataset?.keyframes;
+    if (this.hasCustomKeyframes) {
+      this.passedFrames = JSON.parse(this.node.dataset.keyframes).filter((el) => {
+        return el;
+      })
+    }
 
     this.classes = {
       active: 'active',
@@ -58,14 +61,8 @@ class Collapsible {
 
   setFrames() {
     return this.hasCustomKeyframes
-      ? this.getCustomFrames()
+      ? this.passedFrames
       : [{ height: '0' }, { height: `${this.inner.scrollHeight}px` }];
-  }
-
-  getCustomFrames() {
-    return JSON.parse(this.passedFrames).filter((el) => {
-      return el;
-    });
   }
 
   toggle() {
@@ -186,7 +183,7 @@ class Collapsible {
     if (!this.hasCustomKeyframes) {
       this.setStyles({ height: '0px' });
     } else {
-      this.setStyles(this.getCustomFrames()[0]);
+      this.setStyles(this.passedFrames[0]);
     }
   }
 
@@ -194,7 +191,7 @@ class Collapsible {
     if (!this.hasCustomKeyframes) {
       this.setStyles({ height: 'auto' });
     } else {
-      this.setStyles(this.getCustomFrames()[this.getCustomFrames().length - 1]);
+      this.setStyles(this.passedFrames[this.passedFrames.length - 1]);
     }
   }
 
