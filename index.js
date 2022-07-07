@@ -48,6 +48,13 @@ class Collapsible {
     }
   }
 
+  static setSelectCurrent(trigger, option, node) {
+    trigger.innerText = option.innerText;
+    if (option.dataset.hasOwnProperty('value')) {
+      node.setAttribute('data-value', option.dataset.value);
+    }
+  }
+
   constructor(props) {
     this.node = props.node;
     this.trigger = this.node.querySelector(this.constructor.classes.trigger);
@@ -145,8 +152,9 @@ class Collapsible {
     this.anim.effect.setKeyframes(this.setFrames());
     this.node.classList.remove(this.constructor.classes.in);
     if (
-      this.node.classList.contains(this.constructor.classes.active) ||
-      this.node.classList.contains(this.constructor.classes.out)
+      [this.constructor.classes.active, this.constructor.classes.out].some(
+        (className) => this.node.classList.contains(className)
+      )
     ) {
       this.node.classList.remove(
         this.constructor.classes.active,
@@ -191,10 +199,7 @@ class Collapsible {
     }
 
     this.trigger.addEventListener('mouseover', this.onMouseEnter.bind(this));
-    this.node.addEventListener('mouseleave', (e) => {
-      // TODO: find a way to always detect mouseleave;
-      this.toggle();
-    });
+    this.node.addEventListener('mouseleave', this.toggle.bind(this));
   }
 
   selectCollapsible() {
@@ -205,12 +210,8 @@ class Collapsible {
       this.constructor.classes.selectCurrent
     );
     options.forEach((option) => {
-      const optionHasDataVal = option.dataset.hasOwnProperty('value');
       if (option.classList.contains(this.constructor.classes.selectPicked)) {
-        triggerSpan.innerText = option.innerText;
-        if (optionHasDataVal) {
-          this.node.setAttribute('data-value', option.dataset.value);
-        }
+        this.constructor.setSelectCurrent(triggerSpan, option, this.node);
       }
 
       option.addEventListener('click', (e) => {
@@ -218,10 +219,7 @@ class Collapsible {
           sibling.classList.remove(this.constructor.classes.selectPicked);
         });
         option.classList.add(this.constructor.classes.selectPicked);
-        triggerSpan.innerText = option.innerText;
-        if (optionHasDataVal) {
-          this.node.setAttribute('data-value', option.dataset.value);
-        }
+        this.constructor.setSelectCurrent(triggerSpan, option, this.node);
         this.close();
       });
     });
