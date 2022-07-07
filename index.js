@@ -8,12 +8,12 @@ class Collapsible {
     in: 'transition-in',
     out: 'transition-out',
     selectPicked: 'picked',
+    accordion: 'accordion',
     selectOption: '.collapsible__option',
     selectCurrent: '.collapsible__select-current',
     trigger: '.collapsible__trigger',
     menu: '.collapsible__content',
     inner: '.collapsible__inner',
-    accordion: 'accordion',
   };
 
   static getSiblings(el) {
@@ -302,13 +302,14 @@ class Collapsible {
 
 class Collapsibles {
   constructor() {
-    if (!document.querySelector('.collapsible')) return;
     this.nodes = document.querySelectorAll('.collapsible');
+    if (!this.nodes) return;
     this.collapsibles = [];
     this.init();
   }
 
   initEvents() {
+    // // Only usable if resize is fired during transition (not needed)
     window.addEventListener('resize', () => {
       this.collapsibles.forEach((col) => {
         col.anim.effect.setKeyframes(col.setFrames());
