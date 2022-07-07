@@ -13,6 +13,7 @@ class Collapsible {
     trigger: '.collapsible__trigger',
     menu: '.collapsible__content',
     inner: '.collapsible__inner',
+    accordion: 'accordion',
   };
 
   static getSiblings(el) {
@@ -66,8 +67,9 @@ class Collapsible {
     this.menu = this.node.querySelector(this.constructor.classes.menu);
     this.inner = this.node.querySelector(this.constructor.classes.inner);
 
-    this.isInAccordion =
-      this.node.parentElement.classList.contains('accordion');
+    this.isInAccordion = this.node.parentElement.classList.contains(
+      this.constructor.classes.accordion
+    );
     this.accordion = this.isInAccordion ? this.node.parentElement : null;
     this.siblings = [];
 
@@ -170,8 +172,7 @@ class Collapsible {
         this.constructor.classes.transition,
         this.constructor.classes.in
       );
-      this.anim.playbackRate *= -1;
-      this.anim.play();
+      this.constructor.toggleAnimPlayback(this.anim);
     }
   }
 
@@ -220,7 +221,7 @@ class Collapsible {
         this.constructor.setSelectCurrent(triggerSpan, option, this.node);
       }
 
-      option.addEventListener('click', (e) => {
+      option.addEventListener('click', () => {
         this.constructor.getSiblings(option).forEach((sibling) => {
           sibling.classList.remove(this.constructor.classes.selectPicked);
         });
