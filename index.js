@@ -55,6 +55,11 @@ class Collapsible {
     }
   }
 
+  static toggleAnimPlayback(animation) {
+    animation.updatePlaybackRate((animation.playbackRate *= -1));
+    animation.play();
+  }
+
   constructor(props) {
     this.node = props.node;
     this.trigger = this.node.querySelector(this.constructor.classes.trigger);
@@ -99,6 +104,7 @@ class Collapsible {
         this.node.dataset.keyframes
       );
     }
+
     this.init();
   }
 
@@ -122,16 +128,16 @@ class Collapsible {
           ? this.constructor.classes.out
           : this.constructor.classes.in
       );
-    } else {
-      this.node.classList.add(
-        this.initiallyOpen
-          ? this.constructor.classes.in
-          : this.constructor.classes.out
-      );
+      this.constructor.toggleAnimPlayback(this.anim);
+      return;
     }
 
-    this.anim.updatePlaybackRate((this.anim.playbackRate *= -1));
-    this.anim.play();
+    this.node.classList.add(
+      this.initiallyOpen
+        ? this.constructor.classes.in
+        : this.constructor.classes.out
+    );
+    this.constructor.toggleAnimPlayback(this.anim);
   }
 
   onMouseEnter() {
@@ -226,25 +232,27 @@ class Collapsible {
   }
 
   setStartState() {
-    if (!this.hasCustomKeyframes) {
-      this.constructor.setStyles(this.menu, { height: '0px' });
-    } else {
+    if (this.hasCustomKeyframes) {
       this.constructor.setStyles(this.menu, this.passedFrames[0]);
+      return;
     }
+    this.constructor.setStyles(this.menu, { height: '0px' });
   }
 
   setEndState() {
-    if (!this.hasCustomKeyframes) {
-      this.constructor.setStyles(this.menu, { height: 'auto' });
-    } else {
+    if (this.hasCustomKeyframes) {
       this.constructor.setStyles(
         this.menu,
         this.passedFrames[this.passedFrames.length - 1]
       );
+      return;
     }
+    this.constructor.setStyles(this.menu, { height: 'auto' });
   }
 
   onFinish(event, reverse = true) {
+    this.anim.cancel();
+
     this.node.classList.remove(
       this.constructor.classes.transition,
       this.constructor.classes.in,
@@ -255,12 +263,11 @@ class Collapsible {
       this.node.classList.remove(this.constructor.classes.active);
       this.node.setAttribute('aria-expanded', false);
       this.setStartState();
-    } else {
-      this.node.classList.add(this.constructor.classes.active);
-      this.node.setAttribute('aria-expanded', true);
-      this.setEndState();
+      return;
     }
-    this.anim.cancel();
+    this.node.classList.add(this.constructor.classes.active);
+    this.node.setAttribute('aria-expanded', true);
+    this.setEndState();
   }
 
   init() {
@@ -268,14 +275,6 @@ class Collapsible {
     this.anim.cancel();
 
     this.initEvents();
-
-    if (this.initiallyOpen) {
-      this.node.classList.add(this.constructor.classes.active);
-      this.node.setAttribute('aria-expanded', true);
-      this.setEndState();
-    } else {
-      this.setStartState();
-    }
 
     if (this.isInAccordion) {
       this.siblings.push(...this.constructor.getSiblings(this.node));
@@ -289,6 +288,14 @@ class Collapsible {
       '--collapsible-duration',
       `${this.duration / 1000}s`
     );
+
+    if (this.initiallyOpen) {
+      this.node.classList.add(this.constructor.classes.active);
+      this.node.setAttribute('aria-expanded', true);
+      this.setEndState();
+      return;
+    }
+    this.setStartState();
   }
 }
 
