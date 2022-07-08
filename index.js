@@ -96,7 +96,7 @@ class Collapsible {
       direction: this.initiallyOpen ? 'reverse' : 'normal',
     });
 
-    this.triggerOn = this.node?.dataset?.triggerOn || 'click';
+    this.hoverTrigger = this.node.dataset.hasOwnProperty('hover-trigger');
 
     this.node.closeSelf = this.close.bind(this);
 
@@ -199,7 +199,7 @@ class Collapsible {
     if (
       this.isInAccordion ||
       this.constructor.supportsHover() ||
-      this.triggerOn === 'click'
+      this.hoverTrigger
     ) {
       this.trigger.addEventListener('click', this.onClick.bind(this));
       return;
@@ -271,6 +271,14 @@ class Collapsible {
     this.setEndState();
   }
 
+  stopPropagationInTrigger() {
+    const aTag = this.trigger.querySelector('a');
+    if (!aTag) return;
+    aTag.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
   init() {
     this.anim.playbackRate *= -1;
     this.anim.cancel();
@@ -289,6 +297,8 @@ class Collapsible {
       '--collapsible-duration',
       `${this.duration / 1000}s`
     );
+
+    this.stopPropagationInTrigger();
 
     if (this.initiallyOpen) {
       this.node.classList.add(this.constructor.classes.active);

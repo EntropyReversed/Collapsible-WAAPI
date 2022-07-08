@@ -1,5 +1,3 @@
-<!-- add stopPropagation internally and and data-trigger-hover -->
-
 <div class="accordion" data-collapse-siblings data-duration="600">
   <div class="collapsible" data-initially-open>
     <button
@@ -7,12 +5,7 @@
       type="button"
       aria-label="toggle collapsible"
     >
-      <a
-        href="https://google.com"
-        target="_blank"
-        onclick="event.stopPropagation()"
-        >Collapse Siblings #1</a
-      >
+      <a href="https://google.com" target="_blank">Collapse Siblings #1</a>
       <span class="chevron"></span>
     </button>
     <div class="collapsible__content">
@@ -417,7 +410,7 @@
 
 <div
   class="collapsible collapsible--absolute"
-  data-trigger-on="hover"
+  data-hover-trigger
   data-duration="400"
   data-keyframes='[
     {

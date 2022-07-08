@@ -4,11 +4,6 @@
   box-sizing: border-box;
 }
 
-body {
-  --c-brand: orange;
-  background-color: #222;
-}
-
 // Bare bones
 .collapsible .collapsible__content {
   overflow: hidden;
@@ -17,8 +12,12 @@ body {
 .collapsible .collapsible__inner {
   display: flex;
 }
-
 //
+
+body {
+  --c-brand: orange;
+  background-color: #222;
+}
 
 .accordion .collapsible {
   .collapsible__inner {
