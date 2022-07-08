@@ -96,7 +96,7 @@ class Collapsible {
       direction: this.initiallyOpen ? 'reverse' : 'normal',
     });
 
-    this.hoverTrigger = this.node.dataset.hasOwnProperty('hover-trigger');
+    this.hoverTrigger = this.node.dataset.hasOwnProperty('hoverTrigger');
 
     this.node.closeSelf = this.close.bind(this);
 
@@ -199,7 +199,7 @@ class Collapsible {
     if (
       this.isInAccordion ||
       this.constructor.supportsHover() ||
-      this.hoverTrigger
+      !this.hoverTrigger
     ) {
       this.trigger.addEventListener('click', this.onClick.bind(this));
       return;
