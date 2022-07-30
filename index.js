@@ -49,13 +49,6 @@ class Collapsible {
     }
   }
 
-  static setSelectCurrent(trigger, option, node) {
-    trigger.innerText = option.innerText;
-    if (option.dataset.hasOwnProperty('value')) {
-      node.setAttribute('data-value', option.dataset.value);
-    }
-  }
-
   static toggleAnimPlayback(animation) {
     animation.updatePlaybackRate((animation.playbackRate *= -1));
     animation.play();
@@ -209,29 +202,6 @@ class Collapsible {
     this.node.addEventListener('mouseleave', this.toggle.bind(this));
   }
 
-  selectCollapsible() {
-    const options = this.node.querySelectorAll(
-      this.constructor.classes.selectOption
-    );
-    const triggerSpan = this.trigger.querySelector(
-      this.constructor.classes.selectCurrent
-    );
-    options.forEach((option) => {
-      if (option.classList.contains(this.constructor.classes.selectPicked)) {
-        this.constructor.setSelectCurrent(triggerSpan, option, this.node);
-      }
-
-      option.addEventListener('click', () => {
-        this.constructor.getSiblings(option).forEach((sibling) => {
-          sibling.classList.remove(this.constructor.classes.selectPicked);
-        });
-        option.classList.add(this.constructor.classes.selectPicked);
-        this.constructor.setSelectCurrent(triggerSpan, option, this.node);
-        this.close();
-      });
-    });
-  }
-
   setStartState() {
     if (this.hasCustomKeyframes) {
       this.constructor.setStyles(this.menu, this.passedFrames[0]);
@@ -289,10 +259,6 @@ class Collapsible {
       this.siblings.push(...this.constructor.getSiblings(this.node));
     }
 
-    if (this.isSelect) {
-      this.selectCollapsible();
-    }
-
     this.node.style.setProperty(
       '--collapsible-duration',
       `${this.duration / 1000}s`
@@ -307,6 +273,43 @@ class Collapsible {
       return;
     }
     this.setStartState();
+  }
+}
+
+class CollapsibleSelect extends Collapsible {
+  static setSelectCurrent(trigger, option, node) {
+    trigger.innerText = option.innerText;
+    if (option.dataset.hasOwnProperty('value')) {
+      node.setAttribute('data-value', option.dataset.value);
+    }
+  }
+
+  constructor({ node }) {
+    super({ node });
+    this.initSelect();
+  }
+
+  initSelect() {
+    const options = this.node.querySelectorAll(
+      this.constructor.classes.selectOption
+    );
+    const triggerSpan = this.trigger.querySelector(
+      this.constructor.classes.selectCurrent
+    );
+    options.forEach((option) => {
+      if (option.classList.contains(this.constructor.classes.selectPicked)) {
+        this.constructor.setSelectCurrent(triggerSpan, option, this.node);
+      }
+
+      option.addEventListener('click', () => {
+        this.constructor.getSiblings(option).forEach((sibling) => {
+          sibling.classList.remove(this.constructor.classes.selectPicked);
+        });
+        option.classList.add(this.constructor.classes.selectPicked);
+        this.constructor.setSelectCurrent(triggerSpan, option, this.node);
+        this.close();
+      });
+    });
   }
 }
 
@@ -342,7 +345,11 @@ class Collapsibles {
 
   init() {
     this.nodes.forEach((node) => {
-      this.collapsibles.push(new Collapsible({ node }));
+      if (node.dataset.hasOwnProperty('select')) {
+        this.collapsibles.push(new CollapsibleSelect({ node }));
+      } else {
+        this.collapsibles.push(new Collapsible({ node }));
+      }
     });
     this.initEvents();
   }
