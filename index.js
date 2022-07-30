@@ -80,7 +80,6 @@ class Collapsible {
     this.closeOnOutsideClick = this.node.dataset.hasOwnProperty(
       'closeOnOutsideClick'
     );
-    this.isSelect = this.node.dataset.hasOwnProperty('select');
 
     this.anim = this.menu.animate(this.setFrames(), {
       easing: this.easing,
