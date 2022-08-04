@@ -198,7 +198,7 @@ class Collapsible {
     }
 
     this.trigger.addEventListener('mouseover', this.onMouseEnter.bind(this));
-    this.node.addEventListener('mouseleave', this.toggle.bind(this));
+    this.node.addEventListener('mouseleave', this.close.bind(this));
   }
 
   setStartState() {
